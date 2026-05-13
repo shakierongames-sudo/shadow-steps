@@ -1,0 +1,25 @@
+{
+  "name": "Shadow Steps",
+  "short_name": "Shadow Steps",
+  "description": "Plan careful routes, track each move, and keep progress available offline.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#111514",
+  "theme_color": "#121615",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

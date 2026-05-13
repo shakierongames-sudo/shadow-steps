@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Shadow Steps icon</title>
+  <rect width="512" height="512" rx="96" fill="#111514"/>
+  <path fill="#92d8cb" d="M150 112h154c56 0 98 41 98 96 0 42-25 75-62 90l72 102H304l-58-88h-22v88h-74V112Zm74 64v76h70c20 0 34-15 34-38 0-22-14-38-34-38h-70Z"/>
+  <path fill="#d74957" d="M92 354c58-31 114-34 169-9 44 20 88 19 132-4l27 52c-61 32-122 34-182 7-38-18-77-16-118 6L92 354Z"/>
+</svg>
