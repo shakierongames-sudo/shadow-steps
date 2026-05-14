@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 const STORAGE_KEY = "shadowStepsProgress";
+const ROMAN_TIERS = ["I", "II", "III", "IV"];
 
 const DAILY_QUESTS = [
   {
@@ -60,24 +61,124 @@ const WEEKLY_QUESTS = [
   "Complete 5 nutrition quests this week",
 ];
 
-const BOSS_QUESTS = [
-  "The First Gate: Complete every daily quest in one day",
-  "Break the Plateau: Complete 5 consecutive days",
-  "Shadow Trial: Complete 30 quests in one week",
-  "Hunter's Oath: Complete a 14-day streak",
+const RANKS = [
+  { name: "Unawakened", level: 1, quests: 0, streak: 0, bossRequired: null, title: "Newly Awakened" },
+  { name: "E-Rank", level: 2, quests: 3, streak: 0, bossRequired: null, title: "E-Rank Hunter" },
+  { name: "D-Rank", level: 5, quests: 20, streak: 3, bossRequired: "first-gate", title: "Disciplined Hunter" },
+  { name: "C-Rank", level: 12, quests: 50, streak: 5, bossRequired: "fenrir-echo", title: "Gate Walker" },
+  { name: "B-Rank", level: 25, quests: 120, streak: 10, bossRequired: "minotaur-routine", title: "Shadow Candidate" },
+  { name: "A-Rank", level: 40, quests: 250, streak: 14, bossRequired: "hydra-excuses", title: "Elite Hunter" },
+  { name: "S-Rank", level: 60, quests: 500, streak: 30, bossRequired: "chimera-hunger", title: "National Level Hunter" },
+  { name: "Shadow Rank", level: 80, quests: 800, streak: 30, bossRequired: "wraith-burnout", title: "Shadow Commander" },
+  { name: "Monarch Rank", level: 100, quests: 1200, streak: 30, bossRequired: "cerberus-protocol", title: "Monarch Vessel" },
+  { name: "Abyss Rank", level: 150, quests: 2000, streak: 30, bossRequired: "leviathan-gate", title: "Abyss Walker" },
 ];
 
-const RANKS = [
-  { name: "Unawakened", level: 1, quests: 0, streak: 0, title: "Newly Awakened" },
-  { name: "E-Rank", level: 2, quests: 3, streak: 0, title: "E-Rank Hunter" },
-  { name: "D-Rank", level: 5, quests: 20, streak: 3, title: "Disciplined Hunter" },
-  { name: "C-Rank", level: 12, quests: 50, streak: 5, title: "Gate Walker" },
-  { name: "B-Rank", level: 25, quests: 120, streak: 10, title: "Shadow Candidate" },
-  { name: "A-Rank", level: 40, quests: 250, streak: 14, title: "Elite Hunter" },
-  { name: "S-Rank", level: 60, quests: 500, streak: 30, title: "National Level Hunter" },
-  { name: "Shadow Rank", level: 80, quests: 800, streak: 30, title: "Shadow Commander" },
-  { name: "Monarch Rank", level: 100, quests: 1200, streak: 30, title: "Monarch Vessel" },
-  { name: "Abyss Rank", level: 150, quests: 2000, streak: 30, title: "Abyss Walker" },
+const BOSSES = [
+  {
+    id: "first-gate",
+    name: "The First Gate",
+    gateFrom: "E-Rank",
+    unlocksRank: "D-Rank",
+    powerRequired: 180,
+    rewardXp: 120,
+    badge: "First Gate Cleared",
+    title: "Awakened Hunter",
+    focus: "Discipline",
+    lore: "A shifting shadow beast guards the first true threshold. It tests whether the hunter can return after the first burst of motivation fades.",
+    failure: "The gate rejects unstable discipline. Complete more daily quests before forcing entry again.",
+  },
+  {
+    id: "fenrir-echo",
+    name: "Fenrir’s Echo",
+    gateFrom: "D-Rank",
+    unlocksRank: "C-Rank",
+    powerRequired: 420,
+    rewardXp: 260,
+    badge: "Echo Breaker",
+    title: "Echo Breaker",
+    focus: "Endurance",
+    lore: "A chained wolf-shadow circles the gate. It hunts weakness in movement, stamina, and routine.",
+    failure: "Fenrir’s Echo overpowers your current endurance. Walk, train, and build your streak before returning.",
+  },
+  {
+    id: "minotaur-routine",
+    name: "The Minotaur of Routine",
+    gateFrom: "C-Rank",
+    unlocksRank: "B-Rank",
+    powerRequired: 900,
+    rewardXp: 520,
+    badge: "Maze Breaker",
+    title: "Maze Breaker",
+    focus: "Discipline",
+    lore: "A horned guardian stalks an endless maze of excuses. Only repeated discipline reveals the exit.",
+    failure: "The maze consumes unfocused hunters. Build more consistency before attempting the gate again.",
+  },
+  {
+    id: "hydra-excuses",
+    name: "The Hydra of Excuses",
+    gateFrom: "B-Rank",
+    unlocksRank: "A-Rank",
+    powerRequired: 1800,
+    rewardXp: 900,
+    badge: "Hydra Severed",
+    title: "Excuse Breaker",
+    focus: "Consistency",
+    lore: "Every missed day grows another head. The Hydra can only be beaten by a hunter who keeps showing up.",
+    failure: "The Hydra multiplies faster than your current system power. Strengthen your streak before the next attempt.",
+  },
+  {
+    id: "chimera-hunger",
+    name: "The Chimera of Hunger",
+    gateFrom: "A-Rank",
+    unlocksRank: "S-Rank",
+    powerRequired: 3200,
+    rewardXp: 1400,
+    badge: "Chimera Tamed",
+    title: "Hunger Tamer",
+    focus: "Nutrition",
+    lore: "A three-headed beast built from cravings, shortcuts, and late-night weakness guards the higher ranks.",
+    failure: "The Chimera senses unstable fuel. Improve nutrition and recovery before returning.",
+  },
+  {
+    id: "wraith-burnout",
+    name: "The Wraith of Burnout",
+    gateFrom: "S-Rank",
+    unlocksRank: "Shadow Rank",
+    powerRequired: 5200,
+    rewardXp: 2200,
+    badge: "Burnout Banished",
+    title: "Recovery Warden",
+    focus: "Recovery",
+    lore: "This wraith does not attack strength. It waits for exhaustion, overreach, and neglected recovery.",
+    failure: "The Wraith feeds on your fatigue. Recovery is not optional at this gate.",
+  },
+  {
+    id: "cerberus-protocol",
+    name: "Cerberus Protocol",
+    gateFrom: "Shadow Rank",
+    unlocksRank: "Monarch Rank",
+    powerRequired: 7600,
+    rewardXp: 3200,
+    badge: "Cerberus Protocol Cleared",
+    title: "Gate Commander",
+    focus: "All Stats",
+    lore: "Three heads test body, discipline, and focus at the same time. A single weak area can break the run.",
+    failure: "Cerberus detects imbalance. Raise your weaker stats before trying again.",
+  },
+  {
+    id: "leviathan-gate",
+    name: "Leviathan Gate",
+    gateFrom: "Monarch Rank",
+    unlocksRank: "Abyss Rank",
+    powerRequired: 10800,
+    rewardXp: 5000,
+    badge: "Leviathan Gate Cleared",
+    title: "Abyss Walker",
+    focus: "Endurance",
+    lore: "A colossal shadow moves beneath the final gate. Only long-term discipline survives the pressure below.",
+    failure: "The Leviathan drags unprepared hunters into the deep. Your system power is not yet enough.",
+  },
 ];
 
 const STAT_LABELS = [
@@ -108,6 +209,10 @@ const INITIAL_PROGRESS = {
   totalQuestsCompleted: 0,
   lastActiveDate: null,
   completedByDate: {},
+  clearedBosses: [],
+  badges: [],
+  unlockedTitles: ["Newly Awakened"],
+  systemLog: [],
   stats: {
     strength: 0,
     endurance: 0,
@@ -149,20 +254,86 @@ function calculateLevel(level, xp, gainedXp) {
   return { level: nextLevel, xp: nextXp, levelsGained };
 }
 
+function createLog(text, type = "system") {
+  return {
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    date: new Date().toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+    text,
+    type,
+  };
+}
+
+function appendLog(log, text, type = "system") {
+  return [createLog(text, type), ...(log || [])].slice(0, 10);
+}
+
+function getTotalStats(stats) {
+  return Object.values(stats || {}).reduce((sum, value) => sum + Number(value || 0), 0);
+}
+
+function getPlayerPower(progress) {
+  return (
+    progress.level * 10 +
+    getTotalStats(progress.stats) * 4 +
+    progress.currentStreak * 6 +
+    progress.totalQuestsCompleted
+  );
+}
+
 function getRankForProgress(progress) {
   let unlocked = RANKS[0];
+  const clearedBosses = progress.clearedBosses || [];
 
   RANKS.forEach((rank) => {
     const hasLevel = progress.level >= rank.level;
     const hasQuests = progress.totalQuestsCompleted >= rank.quests;
     const hasStreak = progress.bestStreak >= rank.streak || progress.currentStreak >= rank.streak;
+    const hasBoss = !rank.bossRequired || clearedBosses.includes(rank.bossRequired);
 
-    if (hasLevel && hasQuests && hasStreak) {
+    if (hasLevel && hasQuests && hasStreak && hasBoss) {
       unlocked = rank;
     }
   });
 
   return unlocked;
+}
+
+function getRankStage(progress, currentRank, nextRank) {
+  if (!nextRank) {
+    return { displayName: currentRank.name, tier: 4, tierLabel: "MAX", progress: 100, gateReady: false };
+  }
+
+  if (currentRank.name === "Unawakened") {
+    const levelPercent = Math.min(1, progress.level / Math.max(nextRank.level, 1));
+    const questPercent = Math.min(1, progress.totalQuestsCompleted / Math.max(nextRank.quests, 1));
+    const overall = Math.round(((levelPercent + questPercent) / 2) * 100);
+    return { displayName: "Unawakened", tier: 0, tierLabel: "Awakening", progress: overall, gateReady: false };
+  }
+
+  const levelSpan = Math.max(1, nextRank.level - currentRank.level);
+  const questSpan = Math.max(1, nextRank.quests - currentRank.quests);
+  const streakSpan = Math.max(1, nextRank.streak - currentRank.streak);
+  const levelProgress = Math.min(1, Math.max(0, (progress.level - currentRank.level) / levelSpan));
+  const questProgress = Math.min(1, Math.max(0, (progress.totalQuestsCompleted - currentRank.quests) / questSpan));
+  const streakProgress = nextRank.streak === currentRank.streak
+    ? 1
+    : Math.min(1, Math.max(0, (Math.max(progress.bestStreak, progress.currentStreak) - currentRank.streak) / streakSpan));
+  const overall = (levelProgress + questProgress + streakProgress) / 3;
+  const hasNumericRequirements =
+    progress.level >= nextRank.level &&
+    progress.totalQuestsCompleted >= nextRank.quests &&
+    Math.max(progress.bestStreak, progress.currentStreak) >= nextRank.streak;
+  const tier = hasNumericRequirements ? 4 : Math.min(4, Math.max(1, Math.floor(overall * 4) + 1));
+  const tierLabel = ROMAN_TIERS[tier - 1];
+  const gateReady = hasNumericRequirements && Boolean(nextRank.bossRequired) && !(progress.clearedBosses || []).includes(nextRank.bossRequired);
+
+  return {
+    displayName: `${currentRank.name} ${tierLabel}`,
+    tier,
+    tierLabel,
+    progress: Math.round(overall * 100),
+    gateReady,
+  };
 }
 
 function loadProgress() {
@@ -176,6 +347,10 @@ function loadProgress() {
       ...parsed,
       stats: { ...INITIAL_PROGRESS.stats, ...(parsed.stats || {}) },
       completedByDate: parsed.completedByDate || {},
+      clearedBosses: parsed.clearedBosses || [],
+      badges: parsed.badges || [],
+      unlockedTitles: parsed.unlockedTitles || [parsed.title || INITIAL_PROGRESS.title],
+      systemLog: parsed.systemLog || [],
     };
   } catch {
     return INITIAL_PROGRESS;
@@ -212,6 +387,7 @@ function App() {
   const [draftName, setDraftName] = useState(progress.displayName || "Hunter");
   const [systemMessage, setSystemMessage] = useState(SYSTEM_MESSAGES[0]);
   const [levelNotice, setLevelNotice] = useState(null);
+  const [battleResult, setBattleResult] = useState(null);
 
   const todayKey = getDateKey();
   const completedToday = progress.completedByDate[todayKey] || [];
@@ -219,9 +395,15 @@ function App() {
   const completionPercent = Math.round((completedCount / DAILY_QUESTS.length) * 100);
   const xpNeeded = getXpNeeded(progress.level);
   const xpPercent = Math.min(100, Math.round((progress.xp / xpNeeded) * 100));
-  const currentRankIndex = RANKS.findIndex((rank) => rank.name === progress.rank);
-  const currentRank = RANKS[Math.max(currentRankIndex, 0)] || RANKS[0];
+  const currentRankIndex = Math.max(0, RANKS.findIndex((rank) => rank.name === progress.rank));
+  const currentRank = RANKS[currentRankIndex] || RANKS[0];
   const nextRank = RANKS[currentRankIndex + 1] || null;
+  const rankStage = getRankStage(progress, currentRank, nextRank);
+  const playerPower = getPlayerPower(progress);
+  const activeBoss = BOSSES.find((boss) => boss.gateFrom === currentRank.name && !(progress.clearedBosses || []).includes(boss.id));
+  const canChallengeBoss = Boolean(activeBoss && rankStage.tier >= 3);
+  const bossPowerPercent = activeBoss ? Math.min(100, Math.round((playerPower / activeBoss.powerRequired) * 100)) : 100;
+
   const strongestStat = useMemo(() => {
     return STAT_LABELS.reduce(
       (best, [key, label]) =>
@@ -236,8 +418,16 @@ function App() {
 
   useEffect(() => {
     const rank = getRankForProgress(progress);
-    if (rank.name !== progress.rank || rank.title !== progress.title) {
-      setProgress((current) => ({ ...current, rank: rank.name, title: rank.title }));
+    if (rank.name !== progress.rank) {
+      setProgress((current) => ({
+        ...current,
+        rank: rank.name,
+        title: rank.title,
+        unlockedTitles: Array.from(new Set([...(current.unlockedTitles || []), rank.title])),
+        systemLog: appendLog(current.systemLog, `Rank authorised: ${rank.name}.`, "rank"),
+      }));
+      setLevelNotice(`RANK UP — ${rank.name}`);
+      window.setTimeout(() => setLevelNotice(null), 3000);
     }
   }, [progress]);
 
@@ -263,6 +453,17 @@ function App() {
         nextStats[key] = (nextStats[key] || 0) + value;
       });
 
+      let nextLog = appendLog(current.systemLog, `${quest.title} complete. +${quest.xp} XP.`, "quest");
+      if (levelResult.levelsGained > 0) {
+        nextLog = appendLog(nextLog, `Level increased to ${levelResult.level}.`, "level");
+        setLevelNotice(
+          levelResult.levelsGained === 1
+            ? `LEVEL UP — Level ${levelResult.level}`
+            : `MULTI LEVEL UP — Level ${levelResult.level}`,
+        );
+        window.setTimeout(() => setLevelNotice(null), 2600);
+      }
+
       const nextProgress = {
         ...current,
         level: levelResult.level,
@@ -276,29 +477,85 @@ function App() {
           [todayKey]: [...currentCompletedToday, quest.id],
         },
         stats: nextStats,
+        systemLog: nextLog,
       };
 
-      const nextRank = getRankForProgress(nextProgress);
-      nextProgress.rank = nextRank.name;
-      nextProgress.title = nextRank.title;
-
-      if (levelResult.levelsGained > 0) {
-        setLevelNotice(
-          levelResult.levelsGained === 1
-            ? `LEVEL UP — Level ${levelResult.level}`
-            : `MULTI LEVEL UP — Level ${levelResult.level}`,
-        );
-        window.setTimeout(() => setLevelNotice(null), 2600);
-      }
+      const nextMajorRank = getRankForProgress(nextProgress);
+      nextProgress.rank = nextMajorRank.name;
+      nextProgress.title = nextMajorRank.title;
+      nextProgress.unlockedTitles = Array.from(new Set([...(nextProgress.unlockedTitles || []), nextMajorRank.title]));
 
       setSystemMessage(SYSTEM_MESSAGES[Math.floor(Math.random() * SYSTEM_MESSAGES.length)]);
       return nextProgress;
     });
   };
 
+  const challengeBoss = () => {
+    if (!activeBoss || !canChallengeBoss) return;
+
+    setProgress((current) => {
+      const currentPower = getPlayerPower(current);
+      const victory = currentPower >= activeBoss.powerRequired;
+      const ratio = currentPower / activeBoss.powerRequired;
+
+      if (!victory) {
+        const message = ratio >= 0.7 ? "RETREAT FORCED" : ratio >= 0.5 ? "GATE FAILED" : "OVERWHELMED";
+        setBattleResult({ victory: false, title: message, boss: activeBoss.name, detail: activeBoss.failure });
+        setSystemMessage(`${message}: ${activeBoss.name} remains undefeated.`);
+        window.setTimeout(() => setBattleResult(null), 5200);
+        return {
+          ...current,
+          systemLog: appendLog(current.systemLog, `${activeBoss.name} challenged. ${message.toLowerCase()}.`, "boss-fail"),
+        };
+      }
+
+      const levelResult = calculateLevel(current.level, current.xp, activeBoss.rewardXp);
+      const clearedBosses = Array.from(new Set([...(current.clearedBosses || []), activeBoss.id]));
+      const badges = Array.from(new Set([...(current.badges || []), activeBoss.badge]));
+      const unlockedTitles = Array.from(new Set([...(current.unlockedTitles || []), activeBoss.title]));
+
+      let nextProgress = {
+        ...current,
+        level: levelResult.level,
+        xp: levelResult.xp,
+        clearedBosses,
+        badges,
+        unlockedTitles,
+        title: activeBoss.title,
+        systemLog: appendLog(current.systemLog, `${activeBoss.name} defeated. Badge unlocked: ${activeBoss.badge}.`, "boss-win"),
+      };
+
+      const newRank = getRankForProgress(nextProgress);
+      if (newRank.name !== current.rank) {
+        nextProgress = {
+          ...nextProgress,
+          rank: newRank.name,
+          title: newRank.title,
+          unlockedTitles: Array.from(new Set([...(nextProgress.unlockedTitles || []), newRank.title])),
+          systemLog: appendLog(nextProgress.systemLog, `SYSTEM EVALUATION COMPLETE. You are now ${newRank.name}.`, "rank"),
+        };
+        setLevelNotice(`RANK UP — ${newRank.name}`);
+      } else if (levelResult.levelsGained > 0) {
+        setLevelNotice(`LEVEL UP — Level ${levelResult.level}`);
+      } else {
+        setLevelNotice("GATE CLEARED");
+      }
+
+      setBattleResult({ victory: true, title: "GATE CLEARED", boss: activeBoss.name, detail: `Reward: +${activeBoss.rewardXp} XP · ${activeBoss.badge}` });
+      setSystemMessage(`Gate cleared. ${activeBoss.name} has fallen.`);
+      window.setTimeout(() => setBattleResult(null), 5600);
+      window.setTimeout(() => setLevelNotice(null), 3200);
+      return nextProgress;
+    });
+  };
+
   const saveName = () => {
     const cleanName = draftName.trim() || "Hunter";
-    setProgress((current) => ({ ...current, displayName: cleanName }));
+    setProgress((current) => ({
+      ...current,
+      displayName: cleanName,
+      systemLog: appendLog(current.systemLog, "Identity record updated.", "system"),
+    }));
     setSystemMessage("Identity record updated.");
   };
 
@@ -308,6 +565,7 @@ function App() {
     window.localStorage.removeItem(STORAGE_KEY);
     setProgress(INITIAL_PROGRESS);
     setDraftName(INITIAL_PROGRESS.displayName);
+    setBattleResult(null);
     setSystemMessage("System reset complete. A new awakening begins.");
   };
 
@@ -343,14 +601,24 @@ function App() {
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
       {levelNotice && <div className="level-toast">{levelNotice}</div>}
+      {battleResult && (
+        <div className={battleResult.victory ? "battle-result victory" : "battle-result defeat"}>
+          <strong>{battleResult.title}</strong>
+          <span>{battleResult.boss}</span>
+          <p>{battleResult.detail}</p>
+        </div>
+      )}
 
       <section className="phone-frame">
         <header className="top-panel">
-          <div>
-            <p className="eyebrow">Shadow System Online</p>
-            <h1>Shadow Steps</h1>
+          <div className="brand-row">
+            <div className="brand-sigil" aria-hidden="true">SS</div>
+            <div>
+              <p className="eyebrow">Shadow System Online</p>
+              <h1>Shadow Steps</h1>
+            </div>
           </div>
-          <div className="rank-chip">{progress.rank}</div>
+          <div className="rank-chip">{rankStage.displayName}</div>
         </header>
 
         {activeTab === "dashboard" && (
@@ -378,6 +646,14 @@ function App() {
                 </div>
               </div>
 
+              <div className="rank-tier-box">
+                <div>
+                  <span>Rank Tier</span>
+                  <strong>{rankStage.displayName}</strong>
+                </div>
+                <div className="mini-track"><span style={{ width: `${rankStage.progress}%` }} /></div>
+              </div>
+
               <div className="system-message">
                 <span>System Message</span>
                 <p>{systemMessage}</p>
@@ -385,22 +661,10 @@ function App() {
             </article>
 
             <div className="stat-strip">
-              <article>
-                <span>Streak</span>
-                <strong>{progress.currentStreak}</strong>
-              </article>
-              <article>
-                <span>Best</span>
-                <strong>{progress.bestStreak}</strong>
-              </article>
-              <article>
-                <span>Today</span>
-                <strong>{completionPercent}%</strong>
-              </article>
-              <article>
-                <span>Core Stat</span>
-                <strong>{strongestStat.label}</strong>
-              </article>
+              <article><span>Power</span><strong>{playerPower}</strong></article>
+              <article><span>Streak</span><strong>{progress.currentStreak}</strong></article>
+              <article><span>Today</span><strong>{completionPercent}%</strong></article>
+              <article><span>Core Stat</span><strong>{strongestStat.label}</strong></article>
             </div>
 
             <section className="panel">
@@ -414,6 +678,25 @@ function App() {
               <div className="quest-list compact-list">
                 {DAILY_QUESTS.map((quest) => renderQuestCard(quest, true))}
               </div>
+            </section>
+
+            <section className="panel log-panel">
+              <div className="section-heading">
+                <div>
+                  <p className="label">System Log</p>
+                  <h2>Recent events</h2>
+                </div>
+              </div>
+              {(progress.systemLog || []).length ? (
+                progress.systemLog.slice(0, 4).map((entry) => (
+                  <div className={`log-row ${entry.type}`} key={entry.id}>
+                    <span>{entry.date}</span>
+                    <p>{entry.text}</p>
+                  </div>
+                ))
+              ) : (
+                <div className="locked-row">No events logged yet. Complete a quest to begin recording progress.</div>
+              )}
             </section>
           </section>
         )}
@@ -443,16 +726,73 @@ function App() {
               </div>
               {WEEKLY_QUESTS.map((quest) => <div className="locked-row" key={quest}>{quest}</div>)}
             </section>
+          </section>
+        )}
 
-            <section className="panel locked-panel danger-panel">
+        {activeTab === "gates" && (
+          <section className="screen">
+            <section className="panel boss-panel">
               <div className="section-heading">
                 <div>
-                  <p className="label">Boss Gates</p>
-                  <h2>Boss quests</h2>
+                  <p className="label">Boss Gate</p>
+                  <h2>{activeBoss ? activeBoss.name : "No active gate"}</h2>
                 </div>
-                <span>Locked</span>
+                <span>{activeBoss ? `${bossPowerPercent}%` : "Clear"}</span>
               </div>
-              {BOSS_QUESTS.map((quest) => <div className="locked-row" key={quest}>{quest}</div>)}
+
+              {activeBoss ? (
+                <>
+                  <div className={battleResult ? "battle-stage active" : "battle-stage"}>
+                    <div className="hunter-sprite"><span /></div>
+                    <div className="slash-effect" />
+                    <div className="boss-sprite"><span>{activeBoss.name.split(" ")[0]}</span></div>
+                  </div>
+
+                  <div className="boss-lore">
+                    <p className="label">Gate Lore</p>
+                    <p>{activeBoss.lore}</p>
+                  </div>
+
+                  <div className="boss-power-grid">
+                    <RequirementBar label="Your power" current={playerPower} required={activeBoss.powerRequired} />
+                    <RequirementBar label="Rank tier access" current={rankStage.tier} required={3} />
+                  </div>
+
+                  <div className="boss-info-grid">
+                    <article><span>Focus</span><strong>{activeBoss.focus}</strong></article>
+                    <article><span>Reward</span><strong>+{activeBoss.rewardXp} XP</strong></article>
+                    <article><span>Badge</span><strong>{activeBoss.badge}</strong></article>
+                    <article><span>Unlocks</span><strong>{activeBoss.unlocksRank}</strong></article>
+                  </div>
+
+                  <button className="boss-button" type="button" onClick={challengeBoss} disabled={!canChallengeBoss}>
+                    {canChallengeBoss ? "Challenge Gate" : "Reach Rank Tier III to challenge"}
+                  </button>
+                  <p className="boss-note">Boss attempts are honesty-based and do not delete progress. Failure means retreat, grind, and return stronger.</p>
+                </>
+              ) : (
+                <div className="locked-row">All currently available gates for this rank are cleared. Continue daily quests to reveal the next gate.</div>
+              )}
+            </section>
+
+            <section className="panel">
+              <div className="section-heading">
+                <div>
+                  <p className="label">Gate Archive</p>
+                  <h2>Bosses</h2>
+                </div>
+              </div>
+              <div className="boss-list">
+                {BOSSES.map((boss) => {
+                  const cleared = (progress.clearedBosses || []).includes(boss.id);
+                  return (
+                    <div className={cleared ? "boss-row cleared" : "boss-row"} key={boss.id}>
+                      <span>{boss.name}</span>
+                      <small>{cleared ? "Cleared" : `${boss.gateFrom} → ${boss.unlocksRank}`}</small>
+                    </div>
+                  );
+                })}
+              </div>
             </section>
           </section>
         )}
@@ -490,19 +830,22 @@ function App() {
               <div className="section-heading">
                 <div>
                   <p className="label">Rank Evaluation</p>
-                  <h2>{progress.rank}</h2>
+                  <h2>{rankStage.displayName}</h2>
                 </div>
                 <span>Level {progress.level}</span>
               </div>
 
               {nextRank ? (
                 <div className="next-rank-card">
-                  <p className="label">Next rank</p>
+                  <p className="label">Next major rank</p>
                   <h3>{nextRank.name}</h3>
                   <RequirementBar label="Level" current={progress.level} required={nextRank.level} />
                   <RequirementBar label="Completed quests" current={progress.totalQuestsCompleted} required={nextRank.quests} />
                   <RequirementBar label="Best/current streak" current={Math.max(progress.bestStreak, progress.currentStreak)} required={nextRank.streak} />
-                  <div className="trial-box">Rank-Up Trial: Locked for future update</div>
+                  {nextRank.bossRequired && <RequirementBar label="Gate cleared" current={(progress.clearedBosses || []).includes(nextRank.bossRequired) ? 1 : 0} required={1} />}
+                  <div className={rankStage.gateReady ? "trial-box ready" : "trial-box"}>
+                    {rankStage.gateReady ? "Rank-Up Gate ready. Challenge the boss gate." : "Build tier progress to unlock the next gate."}
+                  </div>
                 </div>
               ) : (
                 <div className="next-rank-card">
@@ -534,7 +877,7 @@ function App() {
                   <p className="label">System Settings</p>
                   <h2>Profile</h2>
                 </div>
-                <span>v0.1</span>
+                <span>v0.2</span>
               </div>
 
               <label className="input-label" htmlFor="displayName">Display name</label>
@@ -548,9 +891,13 @@ function App() {
                 <button type="button" onClick={saveName}>Save</button>
               </div>
 
+              <div className="badge-grid">
+                {(progress.badges || []).length ? progress.badges.map((badge) => <div className="badge-card" key={badge}>{badge}</div>) : <div className="locked-row">No badges unlocked yet. Clear a boss gate to earn one.</div>}
+              </div>
+
               <div className="data-card">
                 <strong>Progress saved locally on this device.</strong>
-                <p>Clearing browser data may erase local progress. Cloud sync, accounts, photo proof, and notifications are future upgrades.</p>
+                <p>Step and habit tracking is honesty-based for now. Supabase leaderboards, accounts, and verification can be added later.</p>
               </div>
 
               <button className="reset-button" type="button" onClick={resetProgress}>Reset all progress</button>
@@ -562,6 +909,7 @@ function App() {
           {[
             ["dashboard", "Home"],
             ["quests", "Quests"],
+            ["gates", "Gates"],
             ["stats", "Stats"],
             ["rank", "Rank"],
             ["settings", "Settings"],
