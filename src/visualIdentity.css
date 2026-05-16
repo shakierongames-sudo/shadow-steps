@@ -1,0 +1,295 @@
+.v03-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 18px;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.84), rgba(2, 6, 18, 0.96)),
+    radial-gradient(circle at 50% 44%, rgba(0, 217, 255, 0.18), transparent 36%);
+  animation: v03SplashExit 1450ms ease forwards;
+}
+
+.v03-splash-logo {
+  width: min(270px, 72vw);
+  height: 86px;
+  object-fit: contain;
+  border: 1px solid rgba(0, 217, 255, 0.34);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(0, 217, 255, 0.28), rgba(102, 84, 255, 0.2)),
+    linear-gradient(180deg, #07111f, #01040d);
+  filter: drop-shadow(0 0 28px rgba(0, 217, 255, 0.52));
+  animation: v03Pulse 1100ms ease-in-out infinite;
+}
+
+.v03-splash p {
+  margin: 0;
+  color: #dffbff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.v03-image-fallback {
+  display: grid;
+  place-items: center;
+  color: #001018;
+  background: linear-gradient(135deg, #00d9ff, #6f77ff);
+  font-weight: 950;
+}
+
+.brand-sigil,
+.brand-fallback {
+  overflow: hidden;
+  color: #001018;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08)),
+    url("/assets/brand/shadow-steps-icon.png") center / cover no-repeat,
+    linear-gradient(135deg, #00d9ff, #6f77ff);
+  box-shadow: 0 0 24px rgba(0, 217, 255, 0.38);
+  text-shadow: none;
+}
+
+.brand-icon {
+  object-fit: cover;
+  filter: drop-shadow(0 0 16px rgba(0, 217, 255, 0.34));
+}
+
+.hero-card,
+.hunter-card {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-card::before,
+.hunter-card::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(2, 6, 17, 0.96) 0%, rgba(2, 6, 17, 0.78) 48%, rgba(2, 6, 17, 0.34) 100%),
+    radial-gradient(ellipse at 85% 24%, rgba(0, 217, 255, 0.3), transparent 12%),
+    linear-gradient(112deg, transparent 64%, rgba(2, 5, 14, 0.98) 64%, rgba(6, 14, 40, 0.98) 78%, transparent 78%),
+    linear-gradient(104deg, transparent 70%, rgba(102, 84, 255, 0.42) 70%, transparent 73%),
+    url("/assets/characters/hunter-omen.png") right bottom / min(48%, 360px) auto no-repeat;
+  content: "";
+}
+
+.hero-card::after,
+.hunter-card::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(0, 217, 255, 0.12), transparent 42%, rgba(103, 78, 255, 0.16));
+  content: "";
+}
+
+.boss-panel {
+  position: relative;
+  overflow: hidden;
+  padding-top: min(235px, 42vw);
+  isolation: isolate;
+}
+
+.boss-panel::before {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  left: 14px;
+  height: min(198px, 34vw);
+  z-index: -1;
+  border: 1px solid rgba(0, 217, 255, 0.22);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 39% 48%, rgba(255, 56, 90, 0.88) 0 10px, transparent 13px),
+    radial-gradient(circle at 61% 48%, rgba(255, 56, 90, 0.88) 0 10px, transparent 13px),
+    linear-gradient(116deg, transparent 16%, rgba(1, 2, 8, 0.88) 16% 45%, transparent 45%),
+    linear-gradient(64deg, transparent 55%, rgba(1, 2, 8, 0.88) 55% 84%, transparent 84%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.76), rgba(0, 0, 0, 0.22)),
+    url("/assets/bosses/fenrir-echo-banner.png") center / cover no-repeat;
+  box-shadow: inset 0 -80px 90px rgba(0, 0, 0, 0.74), 0 0 34px rgba(86, 74, 255, 0.18);
+  content: "";
+}
+
+.boss-panel .section-heading {
+  position: relative;
+  z-index: 1;
+  margin-top: calc(min(198px, 34vw) * -1 + 20px);
+  min-height: calc(min(198px, 34vw) - 20px);
+  align-items: end;
+  padding: 18px;
+}
+
+.boss-panel .section-heading h2 {
+  text-shadow: 0 0 22px rgba(0, 217, 255, 0.58);
+}
+
+.battle-result,
+.boss-result {
+  border-color: rgba(0, 217, 255, 0.36);
+  background:
+    linear-gradient(135deg, rgba(2, 9, 24, 0.96), rgba(8, 10, 34, 0.94)),
+    radial-gradient(circle at 50% 0%, rgba(0, 217, 255, 0.18), transparent 46%);
+  box-shadow: 0 0 44px rgba(0, 217, 255, 0.24), inset 0 0 34px rgba(255, 255, 255, 0.04);
+}
+
+.battle-result strong,
+.boss-result strong {
+  color: #ffffff;
+  text-shadow: 0 0 18px rgba(0, 217, 255, 0.72);
+}
+
+.battle-result.defeat,
+.boss-result.defeat {
+  border-color: rgba(255, 56, 90, 0.42);
+  box-shadow: 0 0 46px rgba(255, 56, 90, 0.22), inset 0 0 34px rgba(255, 56, 90, 0.06);
+}
+
+.battle-result.defeat strong,
+.boss-result.defeat strong {
+  color: #fff2f5;
+  text-shadow: 0 0 18px rgba(255, 56, 90, 0.72);
+}
+
+.badge-card,
+.v03-badge-row small {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0, 217, 255, 0.28);
+  background:
+    linear-gradient(135deg, rgba(0, 217, 255, 0.14), rgba(96, 77, 255, 0.16)),
+    rgba(1, 8, 22, 0.82);
+  box-shadow: inset 0 0 18px rgba(0, 217, 255, 0.08), 0 0 22px rgba(0, 217, 255, 0.1);
+}
+
+.v03-profile-panel {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 14px;
+  margin: 16px 0;
+  padding: 14px;
+  border: 1px solid rgba(0, 217, 255, 0.18);
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(0, 217, 255, 0.08), rgba(91, 75, 255, 0.08)),
+    rgba(2, 8, 20, 0.86);
+}
+
+.v03-profile-hunter {
+  width: 112px;
+  height: 150px;
+  grid-row: span 3;
+  border: 1px solid rgba(0, 217, 255, 0.2);
+  border-radius: 18px;
+  object-fit: cover;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(0, 217, 255, 0.42), transparent 24%),
+    linear-gradient(104deg, transparent 54%, rgba(102, 84, 255, 0.62) 55%, transparent 58%),
+    linear-gradient(112deg, transparent 36%, rgba(2, 5, 14, 0.96) 37% 67%, transparent 68%),
+    #020713;
+  box-shadow: 0 0 28px rgba(0, 217, 255, 0.16);
+}
+
+.v03-profile-copy span,
+.v03-unlock-section strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #66e7ff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.v03-profile-copy h3 {
+  margin: 0;
+}
+
+.v03-profile-copy p {
+  margin: 4px 0 10px;
+  color: #9eb8cb;
+}
+
+.v03-profile-metrics,
+.v03-badge-row,
+.v03-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.v03-profile-metrics small,
+.v03-title-row small,
+.v03-badge-row small {
+  padding: 7px 9px;
+  border: 1px solid rgba(0, 217, 255, 0.18);
+  border-radius: 999px;
+  color: #dffbff;
+  background: rgba(0, 217, 255, 0.08);
+  font-weight: 850;
+}
+
+.v03-title-row small.active {
+  color: #001018;
+  background: linear-gradient(135deg, #00d9ff, #a989ff);
+}
+
+.v03-badge-row p {
+  width: 100%;
+  margin: 0;
+  color: #9eb8cb;
+}
+
+.lineup-poster {
+  object-fit: cover;
+}
+
+@keyframes v03Pulse {
+  0%, 100% { opacity: 0.82; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+@keyframes v03SplashExit {
+  0%, 74% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+@media (max-width: 680px) {
+  .hero-card::before,
+  .hunter-card::before {
+    background:
+      linear-gradient(90deg, rgba(2, 6, 17, 0.97), rgba(2, 6, 17, 0.72)),
+      radial-gradient(ellipse at 86% 26%, rgba(0, 217, 255, 0.28), transparent 16%),
+      linear-gradient(112deg, transparent 62%, rgba(2, 5, 14, 0.98) 62%, rgba(6, 14, 40, 0.98) 80%, transparent 80%),
+      url("/assets/characters/hunter-omen.png") right bottom / 58% auto no-repeat;
+  }
+
+  .boss-panel {
+    padding-top: 205px;
+  }
+
+  .boss-panel::before {
+    height: 178px;
+  }
+
+  .boss-panel .section-heading {
+    margin-top: -164px;
+    min-height: 160px;
+    padding: 14px;
+  }
+
+  .v03-profile-panel {
+    grid-template-columns: 86px 1fr;
+  }
+
+  .v03-profile-hunter {
+    width: 86px;
+    height: 124px;
+  }
+}

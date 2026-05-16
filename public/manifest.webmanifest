@@ -1,24 +1,24 @@
 {
   "name": "Shadow Steps",
-  "short_name": "Shadow Steps",
-  "description": "Plan careful routes, track each move, and keep progress available offline.",
+  "short_name": "ShadowSteps",
+  "description": "Complete quests, gain XP, raise stats, clear gates, and progress as a hunter.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#111514",
-  "theme_color": "#121615",
+  "background_color": "#000000",
+  "theme_color": "#02040a",
   "icons": [
     {
-      "src": "/icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/assets/brand/shadow-steps-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/maskable-icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/assets/brand/shadow-steps-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ]

@@ -1,11 +1,13 @@
-const cacheName = "shadow-steps-v1";
+const cacheName = "shadow-steps-v03";
 const appShell = [
   "/",
   "/index.html",
   "/manifest.webmanifest",
   "/offline.html",
-  "/icons/icon.svg",
-  "/icons/maskable-icon.svg",
+  "/assets/brand/shadow-steps-logo.png",
+  "/assets/brand/shadow-steps-icon.png",
+  "/assets/characters/hunter-omen.png",
+  "/assets/bosses/fenrir-echo-banner.png",
 ];
 
 self.addEventListener("install", (event) => {
